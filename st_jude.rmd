@@ -87,7 +87,7 @@ memphis_avg <- dr %>%
 ```{r}
 memphis_avg %>%
   mutate(plyr_sample = paste0(player, " (", as.character(salary), ")" )) %>%
-  filter(salary %in% c(6000:12000)) %>%
+  filter(salary %in% c(6000:8400)) %>%
   arrange(-percentile_50th) %>%
   head(20) %>%
   ggplot(aes(fct_reorder(plyr_sample, percentile_50th), percentile_50th)) + 
@@ -111,7 +111,7 @@ memphis_avg %>%
 ```{r}
 memphis_med %>%
   mutate(plyr_sample = paste0(player, " (", as.character(salary), ")" )) %>%
-  filter(salary %in% c(6000:12000)) %>%
+  filter(salary %in% c(6000:8400)) %>%
   arrange(-percentile_50th) %>%
   head(20) %>%
   ggplot(aes(fct_reorder(plyr_sample, percentile_50th), percentile_50th)) + 
@@ -143,7 +143,7 @@ dk_data %>%
 dr %>%
   clean_names() %>%
   mutate(plyr_sample = paste0(player, " (", as.character(salary), ")" )) %>%
-  filter(salary %in% c(6000:12000)) %>%
+  filter(salary %in% c(6000:8400)) %>%
   arrange(-points) %>%
   head(20) %>%
   ggplot(aes(fct_reorder(plyr_sample, points), points)) + 
