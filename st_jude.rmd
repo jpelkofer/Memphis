@@ -233,18 +233,19 @@ memphis_sg_med %>%
 
 ###Density Charts
 ```{r}
-PGA %>%
+dk_data %>%
   clean_names() %>%
-  filter(player %in% c('Webb Simpson', 'Paul Casey', 'Gary Woodland'), !is.na(sg_app)) %>%
-  ggplot(aes(sg_app)) +
+  filter(player %in% c('Sung Kang')) %>%
+  ggplot(aes(pts_against_field_avg)) +
   geom_density(alpha = .3, aes(fill = player))
 ```
 
-###Box Plots
+###Box Plots Appr Shots
 ```{r}
 PGA %>%
-  clean_names() %>%
-  filter(player %in% c('Webb Simpson', 'Paul Casey', 'Gary Woodland'), !is.na(sg_app)) %>%
+  clean_names() %>% 
+  left_join(select(dr, Player, Salary), by = c("player"="Player")) %>%
+  filter(Salary %in% c(6000:6900), !is.na(sg_app), !is.na(Salary)) %>%
   add_count(player) %>%
   mutate(plyr_sample = paste0(player, " (", as.character(n), ")" )) %>%
   ggplot(aes(x=fct_reorder(plyr_sample, sg_app, fun=median), y = sg_app)) +
@@ -261,6 +262,27 @@ PGA %>%
   coord_flip() 
 ```
 
+### Box Plots DKPts Against Field Avg
+```{r}
+dk_data %>%
+  clean_names() %>% 
+  left_join(select(dr, Player, Salary), by = c("player"="Player")) %>%
+  filter(Salary %in% c(6000:6900), !is.na(Salary)) %>%
+  add_count(player) %>%
+  mutate(plyr_sample = paste0(player, " (", as.character(n), ")" )) %>%
+  ggplot(aes(x=fct_reorder(plyr_sample, pts_against_field_median, fun=median), y = pts_against_field_avg)) +
+  geom_boxplot(fill = '#F57921', color = 'black') + 
+  labs(title = "DK Points vs. Field Average",
+       subtitle = "2018-2019 PGA Season (sample size)",
+       caption = "Data Source: advancedsportsanalytics.com") +
+  theme(panel.background = element_rect(fill = '#472F91'),
+        plot.background = element_rect(fill = '#472F91'),
+        plot.title = element_text(color = '#F57921'),
+        plot.subtitle = element_text(color = '#F57921', size=10),
+        plot.caption = element_text(color = "#F57921"),
+        axis.text = element_text(color = 'white')) +
+  coord_flip() 
+```
 
 
 ###DR Data
@@ -268,7 +290,7 @@ PGA %>%
 dr %>%
   clean_names() %>%
   mutate(plyr_sample = paste0(player, " (", as.character(salary), ")" )) %>%
-  filter(salary %in% c(6000:8400)) %>%
+  filter(salary %in% c(6000:6900)) %>%
   arrange(-points) %>%
   head(20) %>%
   ggplot(aes(fct_reorder(plyr_sample, points), points)) + 
