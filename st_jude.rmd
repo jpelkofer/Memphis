@@ -245,7 +245,7 @@ dk_data %>%
 PGA %>%
   clean_names() %>% 
   left_join(select(dr, Player, Salary), by = c("player"="Player")) %>%
-  filter(Salary %in% c(6000:6900), !is.na(sg_app), !is.na(Salary)) %>%
+  filter(Salary %in% c(10000:11000), !is.na(sg_app), !is.na(Salary)) %>%
   add_count(player) %>%
   mutate(plyr_sample = paste0(player, " (", as.character(n), ")" )) %>%
   ggplot(aes(x=fct_reorder(plyr_sample, sg_app, fun=median), y = sg_app)) +
@@ -259,7 +259,7 @@ PGA %>%
         plot.subtitle = element_text(color = '#F57921', size=10),
         plot.caption = element_text(color = "#F57921"),
         axis.text = element_text(color = 'white')) +
-  coord_flip() 
+  coord_flip()
 ```
 
 ### Box Plots DKPts Against Field Avg
