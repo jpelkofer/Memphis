@@ -25,6 +25,7 @@ dr <- read_csv("dr.csv")
 
 ###Prepare Data
 ```{r}
+#DK Points
 tournament_data <- PGA %>%
   clean_names() %>%
   group_by(tournament_id) %>%
@@ -33,15 +34,34 @@ tournament_data <- PGA %>%
             field_avg_fd_pts = mean(fd_total_fp),
             field_median_fd_pts = median(fd_total_fp))
 
-
 dk_data <- PGA %>%
   clean_names() %>%
-  select(player, player_id, tournament_id, tournament_name, date, dk_total_fp) %>%
-  left_join(select(tournament_data, tournament_id, field_avg_dk_pts, field_median_dk_pts ), by = 'tournament_id') %>%
+  select(player, player_id, tournament_id, tournament_name, date, dk_total_fp, sg_app) %>%
+  left_join(select(tournament_data, tournament_id, field_avg_dk_pts, field_median_dk_pts), 
+            by = 'tournament_id') %>%
   mutate(pts_against_field_avg = dk_total_fp/field_avg_dk_pts,
          pts_against_field_median = dk_total_fp/field_median_dk_pts) %>%
   add_count(player) %>%
   rename(sample_size = n)
+
+#SG APPR
+tournament_sg <- PGA %>%
+  filter(!is.na(sg_app)) %>%
+  clean_names() %>%
+  group_by(tournament_id) %>%
+  summarize(field_avg_sg_appr = mean(sg_app),
+            field_median_sg_appr = median(sg_app))
+
+sg_data <- PGA %>%
+  clean_names() %>%
+  select(player, player_id, tournament_id, tournament_name, date, sg_app) %>%
+  left_join(select(tournament_sg, tournament_id, field_avg_sg_appr,  field_median_sg_appr), 
+            by = 'tournament_id') %>%
+  mutate(appr_against_field_avg = sg_app - field_avg_sg_appr,
+         appr_against_field_med = sg_app - field_median_sg_appr) %>%
+  add_count(player) %>%
+  rename(sample_size = n)
+
 
 dk_percentiles_med <- dk_data %>% 
   group_by(player) %>% 
@@ -65,6 +85,31 @@ dk_percentiles_avg <- dk_data %>%
  left_join(select(dk_data, player, sample_size), by = 'player') %>%
  distinct(player, .keep_all=TRUE)
 
+dk_percentiles_sg_avg <- sg_data %>%
+  drop_na() %>%
+  group_by(player) %>% 
+  do(data.frame(t(quantile(.$appr_against_field_avg, probs = c(0.10, 0.25, 0.50, 0.75, .90))))) %>%
+  rename(percentile_10th = X10.,
+         percentile_25th = X25.,
+         percentile_50th = X50.,
+         percentile_75th = X75.,
+         percentile_90th = X90.) %>%
+ left_join(select(dk_data, player, sample_size), by = 'player') %>%
+ distinct(player, .keep_all=TRUE)
+
+
+dk_percentiles_sg_median <- sg_data %>%
+  drop_na() %>%
+  group_by(player) %>% 
+  do(data.frame(t(quantile(.$appr_against_field_med, probs = c(0.10, 0.25, 0.50, 0.75, .90))))) %>%
+  rename(percentile_10th = X10.,
+         percentile_25th = X25.,
+         percentile_50th = X50.,
+         percentile_75th = X75.,
+         percentile_90th = X90.) %>%
+ left_join(select(dk_data, player, sample_size), by = 'player') %>%
+ distinct(player, .keep_all=TRUE)
+
 
 dr$Player[dr$Player=="Rafa Cabrera Bello"] <- "Rafael Cabrera Bello"
 dr$Player[dr$Player=="Alex Noren"] <- "Alexander Noren"
@@ -79,6 +124,16 @@ memphis_avg <- dr %>%
   clean_names() %>%
   select(player, salary, ownership, points) %>%
   left_join(dk_percentiles_avg, everything(), by="player")
+
+memphis_sg_med <- dr %>%
+  clean_names() %>%
+  select(player, salary, ownership, points) %>%
+  left_join(dk_percentiles_sg_median, everything(), by="player")
+
+memphis_sg_avg <- dr %>%
+  clean_names() %>%
+  select(player, salary, ownership, points) %>%
+  left_join(dk_percentiles_sg_avg, everything(), by="player")
 ```
 
 
@@ -129,13 +184,83 @@ memphis_med %>%
         axis.text = element_text(color = 'white'))
 ```
 
+###Error Bar Charts for TPC Memphis Field (SG_APPR vs field avg)
+```{r}
+memphis_sg_avg %>%
+  mutate(plyr_sample = paste0(player, " (", as.character(salary), ")" )) %>%
+  filter(salary %in% c(6000:12000)) %>%
+  arrange(-percentile_50th) %>%
+  head(20) %>%
+  ggplot(aes(fct_reorder(plyr_sample, percentile_50th), percentile_50th)) + 
+  geom_point(color="#F57921") + 
+  geom_errorbar(aes(ymin = percentile_10th, ymax = percentile_90th), color = "#F57921") +
+  labs(title = "Ratio of Players SG Approach Against Field Avg",
+       subtitle = "Player (sample size) (10th percentile, 50th percentile, 90th percentile)",
+       caption = "The Field, DK Salary 8k and above. Data Source: advancedsportsanalytics.com") +
+  coord_flip() + 
+  theme(panel.background = element_rect(fill = '#472F91'),
+        plot.background = element_rect(fill = '#472F91'),
+        plot.title = element_text(color = '#F57921'),
+        plot.subtitle = element_text(size = 10,  color = '#F57921'),
+        plot.caption = element_text(size = 8, hjust = -1, color = "#F57921"),
+        axis.text = element_text(color = 'white'))
+
+
+```
+
+###Error Bar Charts for TPC Memphis Field (SG_APPR vs field med)
+```{r}
+memphis_sg_med %>%
+  mutate(plyr_sample = paste0(player, " (", as.character(salary), ")" )) %>%
+  filter(salary %in% c(6000:12000)) %>%
+  arrange(-percentile_50th) %>%
+  head(20) %>%
+  ggplot(aes(fct_reorder(plyr_sample, percentile_50th), percentile_50th)) + 
+  geom_point(color="#F57921") + 
+  geom_errorbar(aes(ymin = percentile_10th, ymax = percentile_90th), color = "#F57921") +
+  labs(title = "Ratio of Players SG Approach Against Field Median",
+       subtitle = "Player (sample size) (10th percentile, 50th percentile, 90th percentile)",
+       caption = "The Field, DK Salary 8k and above. Data Source: advancedsportsanalytics.com") +
+  coord_flip() + 
+  theme(panel.background = element_rect(fill = '#472F91'),
+        plot.background = element_rect(fill = '#472F91'),
+        plot.title = element_text(color = '#F57921'),
+        plot.subtitle = element_text(size = 10,  color = '#F57921'),
+        plot.caption = element_text(size = 8, hjust = -1, color = "#F57921"),
+        axis.text = element_text(color = 'white'))
+```
+
+
 ###Density Charts
 ```{r}
-dk_data %>%
-  filter(player %in% c('Jason Day', 'Dustin Johnson')) %>%
-  ggplot(aes(pts_against_field_avg)) +
+PGA %>%
+  clean_names() %>%
+  filter(player %in% c('Webb Simpson', 'Paul Casey', 'Gary Woodland'), !is.na(sg_app)) %>%
+  ggplot(aes(sg_app)) +
   geom_density(alpha = .3, aes(fill = player))
 ```
+
+###Box Plots
+```{r}
+PGA %>%
+  clean_names() %>%
+  filter(player %in% c('Webb Simpson', 'Paul Casey', 'Gary Woodland'), !is.na(sg_app)) %>%
+  add_count(player) %>%
+  mutate(plyr_sample = paste0(player, " (", as.character(n), ")" )) %>%
+  ggplot(aes(x=fct_reorder(plyr_sample, sg_app, fun=median), y = sg_app)) +
+  geom_boxplot(fill = '#F57921', color = 'black') + 
+  labs(title = "Distributions of Strokes Gained on Approach Shots",
+       subtitle = "2018-2019 PGA Season (sample size)",
+       caption = "Data Source: advancedsportsanalytics.com") +
+  theme(panel.background = element_rect(fill = '#472F91'),
+        plot.background = element_rect(fill = '#472F91'),
+        plot.title = element_text(color = '#F57921'),
+        plot.subtitle = element_text(color = '#F57921', size=10),
+        plot.caption = element_text(color = "#F57921"),
+        axis.text = element_text(color = 'white')) +
+  coord_flip() 
+```
+
 
 
 ###DR Data
