@@ -54,7 +54,9 @@ showdown <- plyr_rd_scoring %>%
   left_join(select(tourn_rd_score, everything()), by = c("tournament_id", "round")) %>%
   mutate(dk_pts_over_avg = dk_pts/avg_dk_score,
          dk_pts_over_med = dk_pts/med_dk_score) %>%
-  arrange(-dk_pts_over_med)
+  ungroup() %>%
+  add_count(player)
+
 
 ```
 
@@ -63,9 +65,8 @@ showdown <- plyr_rd_scoring %>%
 ```{r}
 showdown %>%
   left_join(select(rd1, player, Salary)) %>%
-  filter(Salary %in% c(8500:9300), !is.na(Salary)) %>%
-  add_count(player) %>%
-  mutate(plyr_sample = paste0(player, " (", as.character(Salary), ")" )) %>%
+  filter(Salary %in% c(9100:11000), !is.na(Salary)) %>%
+  mutate(plyr_sample = paste0(player, " (", as.character(n), ")", " (", as.character(Salary), ")" )) %>%
   ggplot(aes(x=fct_reorder(plyr_sample, dk_pts_over_avg, fun=mean), y = dk_pts_over_avg)) +
   geom_boxplot(fill = '#F57921', color = '#472F91') + 
   labs(title = "DK Points vs. Field Average 1 Round",
@@ -84,9 +85,8 @@ showdown %>%
 ```{r}
 showdown %>%
   left_join(select(rd1, player, Salary)) %>%
-  filter(Salary %in% c(8500:9300), !is.na(Salary)) %>%
-  add_count(player) %>%
-  mutate(plyr_sample = paste0(player, " (", as.character(Salary), ")" )) %>%
+  filter(Salary %in% c(9100:11000), !is.na(Salary)) %>%
+  mutate(plyr_sample = paste0(player, " (", as.character(n), ")", " (", as.character(Salary), ")" )) %>%
   ggplot(aes(x=fct_reorder(plyr_sample, dk_pts_over_med, fun=median), y = dk_pts_over_med)) +
   geom_boxplot(fill = '#F57921', color = '#472F91') + 
   labs(title = "DK Points vs. Field Median 1 Round",
@@ -99,5 +99,14 @@ showdown %>%
              plot.caption = element_text(color = "#472F91"),
              axis.text = element_text(color = '#472F91', size = 12)) +
   coord_flip() 
+```
+
+
+#Density Plots
+```{r}
+showdown %>%
+  filter(player %in% c("Tommy Fleetwood", "Phil Mickelson")) %>%
+  ggplot(aes(dk_pts_over_avg)) +
+  geom_density(aes(fill = player), alpha = .3)
 ```
 
