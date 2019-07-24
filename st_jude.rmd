@@ -198,12 +198,12 @@ memphis_sg_avg %>%
        subtitle = "Player (sample size) (10th percentile, 50th percentile, 90th percentile)",
        caption = "The Field, DK Salary 8k and above. Data Source: advancedsportsanalytics.com") +
   coord_flip() + 
-  theme(panel.background = element_rect(fill = '#472F91'),
-        plot.background = element_rect(fill = '#472F91'),
-        plot.title = element_text(color = '#F57921'),
-        plot.subtitle = element_text(size = 10,  color = '#F57921'),
-        plot.caption = element_text(size = 8, hjust = -1, color = "#F57921"),
-        axis.text = element_text(color = 'white'))
+  theme(panel.background = element_rect(fill = 'white'),
+             plot.background = element_rect(fill = 'white'),
+             plot.title = element_text(color = '#472F91'),
+             plot.subtitle = element_text(color = '#472F91', size=12),
+             plot.caption = element_text(color = "#472F91"),
+             axis.text = element_text(color = '#472F91', size = 12))
 
 
 ```
@@ -249,16 +249,16 @@ PGA %>%
   add_count(player) %>%
   mutate(plyr_sample = paste0(player, " (", as.character(n), ")" )) %>%
   ggplot(aes(x=fct_reorder(plyr_sample, sg_app, fun=median), y = sg_app)) +
-  geom_boxplot(fill = '#F57921', color = 'black') + 
+  geom_boxplot(fill = '#F57921', color = '#472F91') + 
   labs(title = "Distributions of Strokes Gained on Approach Shots",
        subtitle = "2018-2019 PGA Season (sample size)",
        caption = "Data Source: advancedsportsanalytics.com") +
-  theme(panel.background = element_rect(fill = '#472F91'),
-        plot.background = element_rect(fill = '#472F91'),
-        plot.title = element_text(color = '#F57921'),
-        plot.subtitle = element_text(color = '#F57921', size=10),
-        plot.caption = element_text(color = "#F57921"),
-        axis.text = element_text(color = 'white')) +
+  theme(panel.background = element_rect(fill = 'white'),
+             plot.background = element_rect(fill = 'white'),
+             plot.title = element_text(color = '#472F91'),
+             plot.subtitle = element_text(color = '#472F91', size=12),
+             plot.caption = element_text(color = "#472F91"),
+             axis.text = element_text(color = '#472F91', size = 12)) +
   coord_flip()
 ```
 
@@ -271,16 +271,16 @@ dk_data %>%
   add_count(player) %>%
   mutate(plyr_sample = paste0(player, " (", as.character(n), ")" )) %>%
   ggplot(aes(x=fct_reorder(plyr_sample, pts_against_field_median, fun=median), y = pts_against_field_avg)) +
-  geom_boxplot(fill = '#F57921', color = 'black') + 
+  geom_boxplot(fill = '#F57921', color = '#472F91') + 
   labs(title = "DK Points vs. Field Average",
        subtitle = "2018-2019 PGA Season (sample size)",
        caption = "Data Source: advancedsportsanalytics.com") +
-  theme(panel.background = element_rect(fill = '#472F91'),
-        plot.background = element_rect(fill = '#472F91'),
-        plot.title = element_text(color = '#F57921'),
-        plot.subtitle = element_text(color = '#F57921', size=10),
-        plot.caption = element_text(color = "#F57921"),
-        axis.text = element_text(color = 'white')) +
+  theme(panel.background = element_rect(fill = 'white'),
+             plot.background = element_rect(fill = 'white'),
+             plot.title = element_text(color = '#472F91'),
+             plot.subtitle = element_text(color = '#472F91', size=12),
+             plot.caption = element_text(color = "#472F91"),
+             axis.text = element_text(color = '#472F91', size = 12)) +
   coord_flip() 
 ```
 

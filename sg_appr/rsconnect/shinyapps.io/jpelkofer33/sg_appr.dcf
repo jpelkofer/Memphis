@@ -1,0 +1,12 @@
+name: sg_appr
+title: sg_appr
+username:
+account: jpelkofer33
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1047950
+bundleId: 2259530
+url: https://jpelkofer33.shinyapps.io/sg_appr/
+when: 1563929578.64232
+asMultiple: FALSE
+asStatic: FALSE

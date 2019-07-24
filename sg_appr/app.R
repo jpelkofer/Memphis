@@ -15,13 +15,13 @@ library(ggthemes)
 theme_set(theme_fivethirtyeight())
 
 
-PGA <- read_csv('PGA.csv')
+PGA <- read.csv("https://stewart-gibson.shinyapps.io/PGA_All_Data_Downloader/_w_8cc3efbc/session/727e07c543ce5c68e71ee18b921764d9/download/Tourn_downloadData?w=8cc3efbc")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
    
    # Application title
-   titlePanel("Old Faithful Geyser Data"),
+   titlePanel("Compare Golfers Strokes Gained Approach Distributions"),
    
    # Sidebar with a slider input for number of bins 
    sidebarLayout(
@@ -35,7 +35,7 @@ ui <- fluidPage(
       
       # Show a plot of the generated distribution
       mainPanel(
-         plotOutput("distPlot")
+         plotOutput("distPlot", height = "700px")
       )
    )
 )
@@ -57,9 +57,9 @@ server <- function(input, output) {
        theme(panel.background = element_rect(fill = 'white'),
              plot.background = element_rect(fill = 'white'),
              plot.title = element_text(color = '#472F91'),
-             plot.subtitle = element_text(color = '#472F91', size=10),
+             plot.subtitle = element_text(color = '#472F91', size=12),
              plot.caption = element_text(color = "#472F91"),
-             axis.text = element_text(color = '#472F91', size = 10)) +
+             axis.text = element_text(color = '#472F91', size = 12)) +
        coord_flip()
    })
 }
