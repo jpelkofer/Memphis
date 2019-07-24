@@ -245,7 +245,7 @@ dk_data %>%
 PGA %>%
   clean_names() %>% 
   left_join(select(dr, Player, Salary), by = c("player"="Player")) %>%
-  filter(Salary %in% c(10000:11000), !is.na(sg_app), !is.na(Salary)) %>%
+  filter(Salary %in% c(9500:12000), !is.na(sg_app), !is.na(Salary)) %>%
   add_count(player) %>%
   mutate(plyr_sample = paste0(player, " (", as.character(n), ")" )) %>%
   ggplot(aes(x=fct_reorder(plyr_sample, sg_app, fun=median), y = sg_app)) +
@@ -267,12 +267,32 @@ PGA %>%
 dk_data %>%
   clean_names() %>% 
   left_join(select(dr, Player, Salary), by = c("player"="Player")) %>%
-  filter(Salary %in% c(6000:6900), !is.na(Salary)) %>%
+  filter(Salary %in% c(9500:12000), !is.na(Salary)) %>%
   add_count(player) %>%
   mutate(plyr_sample = paste0(player, " (", as.character(n), ")" )) %>%
-  ggplot(aes(x=fct_reorder(plyr_sample, pts_against_field_median, fun=median), y = pts_against_field_avg)) +
+  ggplot(aes(x=fct_reorder(plyr_sample, pts_against_field_avg, fun=mean), y = pts_against_field_avg)) +
   geom_boxplot(fill = '#F57921', color = '#472F91') + 
   labs(title = "DK Points vs. Field Average",
+       subtitle = "2018-2019 PGA Season (sample size)",
+       caption = "Data Source: advancedsportsanalytics.com") +
+  theme(panel.background = element_rect(fill = 'white'),
+             plot.background = element_rect(fill = 'white'),
+             plot.title = element_text(color = '#472F91'),
+             plot.subtitle = element_text(color = '#472F91', size=12),
+             plot.caption = element_text(color = "#472F91"),
+             axis.text = element_text(color = '#472F91', size = 12)) +
+  coord_flip() 
+```
+```{r}
+dk_data %>%
+  clean_names() %>% 
+  left_join(select(dr, Player, Salary), by = c("player"="Player")) %>%
+  filter(Salary %in% c(9500:12000), !is.na(Salary)) %>%
+  add_count(player) %>%
+  mutate(plyr_sample = paste0(player, " (", as.character(n), ")" )) %>%
+  ggplot(aes(x=fct_reorder(plyr_sample, pts_against_field_median, fun=median), y = pts_against_field_median)) +
+  geom_boxplot(fill = '#F57921', color = '#472F91') + 
+  labs(title = "DK Points vs. Field Median",
        subtitle = "2018-2019 PGA Season (sample size)",
        caption = "Data Source: advancedsportsanalytics.com") +
   theme(panel.background = element_rect(fill = 'white'),
@@ -290,19 +310,19 @@ dk_data %>%
 dr %>%
   clean_names() %>%
   mutate(plyr_sample = paste0(player, " (", as.character(salary), ")" )) %>%
-  filter(salary %in% c(6000:6900)) %>%
+  filter(salary %in% c(9500:12000)) %>%
   arrange(-points) %>%
   head(20) %>%
   ggplot(aes(fct_reorder(plyr_sample, points), points)) + 
   geom_col(fill = "#F57921") +
   coord_flip() +
   labs(title = "DR Projected Points") +
-  theme(panel.background = element_rect(fill = '#472F91'),
-        plot.background = element_rect(fill = '#472F91'),
-        plot.title = element_text(color = '#F57921'),
-        plot.subtitle = element_text(size = 10,  color = '#F57921'),
-        plot.caption = element_text(size = 8, hjust = -1, color = "#F57921"),
-        axis.text = element_text(color = 'white'))
+  theme(panel.background = element_rect(fill = 'white'),
+             plot.background = element_rect(fill = 'white'),
+             plot.title = element_text(color = '#472F91'),
+             plot.subtitle = element_text(color = '#472F91', size=12),
+             plot.caption = element_text(color = "#472F91"),
+             axis.text = element_text(color = '#472F91', size = 12))
 
 
 
