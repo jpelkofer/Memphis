@@ -15,7 +15,7 @@ library(ggthemes)
 theme_set(theme_fivethirtyeight())
 
 
-PGA <- read.csv("https://stewart-gibson.shinyapps.io/PGA_All_Data_Downloader/_w_8cc3efbc/session/727e07c543ce5c68e71ee18b921764d9/download/Tourn_downloadData?w=8cc3efbc")
+PGA <- read.csv("PGA.csv")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
