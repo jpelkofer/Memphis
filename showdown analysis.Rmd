@@ -105,8 +105,32 @@ showdown %>%
 #Density Plots
 ```{r}
 showdown %>%
-  filter(player %in% c("Tommy Fleetwood", "Phil Mickelson")) %>%
+  filter(player %in% c("Jim Furyk")) %>%
   ggplot(aes(dk_pts_over_avg)) +
   geom_density(aes(fill = player), alpha = .3)
+
+
+```
+
+
+###Simulations
+```{r}
+
+showdown %>%
+  filter(n>50) %>%
+  distinct(player) %>%
+  pull(player)
+
+player_sim_data <- showdown %>%
+  group_by(player) %>%
+  summarize(avg = mean(dk_pts_over_avg), st_dev = sd(dk_pts_over_avg)) %>%
+  ungroup() %>%
+  mutate(sims = 5000)
+
+
+player_sim_data %>% 
+  rowwise %>% 
+  mutate(rd_avg = round(mean(rnorm(n = sims, mean = avg, sd = st_dev)), 2))
+
 ```
 
