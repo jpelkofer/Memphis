@@ -18,9 +18,12 @@ theme_set(theme_fivethirtyeight())
 
 
 hole_data <- read_csv('hole_level_data.csv')
-rd1 <- read.csv("rd1.csv")
+rd2 <- read.csv("rd2.csv")
+rd2 %>% mutate_if(is.factor, as.character) -> rd2
 
-
+rd2$Player[rd2$Player=="Rafa Cabrera Bello"] <- "Rafael Cabrera Bello"
+rd2$Player[rd2$Player=="Alex Noren"] <- "Alexander Noren"
+rd2$Player[rd2$Player=="Matthew Wolff"] <- "Matthew Wolf"
 ```
 
 ###Showdown Scoring
@@ -122,15 +125,50 @@ showdown %>%
   pull(player)
 
 player_sim_data <- showdown %>%
+  filter(n>35) %>%
   group_by(player) %>%
   summarize(avg = mean(dk_pts_over_avg), st_dev = sd(dk_pts_over_avg)) %>%
   ungroup() %>%
-  mutate(sims = 5000)
+  mutate(sims = 20000)
 
-
-player_sim_data %>% 
+set.seed(33)
+player_sims <- player_sim_data %>%
   rowwise %>% 
-  mutate(rd_avg = round(mean(rnorm(n = sims, mean = avg, sd = st_dev)), 2))
+  mutate(rd_avg = round(mean(rnorm(n = sims, mean = avg, sd = st_dev)), 2),
+         perc_10 = round(quantile(rnorm(n = sims, mean = avg, sd = st_dev), prob= .10), 2),
+         perc_25 = round(quantile(rnorm(n = sims, mean = avg, sd = st_dev), prob= .25), 2),
+         perc_75 = round(quantile(rnorm(n = sims, mean = avg, sd = st_dev), prob= .75), 2),
+         perc_90 = round(quantile(rnorm(n = sims, mean = avg, sd = st_dev), prob= .90), 2)) %>%
+  arrange(-perc_75)
 
+rd2_sims <- rd2 %>%
+  clean_names() %>%
+  select(player, salary) %>%
+  left_join(select(player_sims, everything()), by="player")
+
+```
+
+
+
+###Analyzing Sims
+```{r}
+rd2_sims %>%
+  select(-avg, -st_dev) %>%
+  filter(salary < 7800) %>%
+  arrange(-perc_75) %>%
+  head(20)
+
+```
+
+###Sims Charts
+```{r}
+rd2_sims %>%
+  filter(salary %in% c(6000:7400)) %>%
+  head(15) %>%
+  mutate(name = paste0(player, " (", salary, ")")) %>%
+  ggplot(aes(fct_reorder(name, perc_90), rd_avg)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = perc_10, ymax = perc_90)) + 
+  coord_flip()
 ```
 
