@@ -18,12 +18,12 @@ theme_set(theme_fivethirtyeight())
 
 
 hole_data <- read_csv('hole_level_data.csv')
-rd2 <- read.csv("rd2.csv")
-rd2 %>% mutate_if(is.factor, as.character) -> rd2
+rd3 <- read.csv("rd3.csv")
+rd3 %>% mutate_if(is.factor, as.character) -> rd3
 
-rd2$Player[rd2$Player=="Rafa Cabrera Bello"] <- "Rafael Cabrera Bello"
-rd2$Player[rd2$Player=="Alex Noren"] <- "Alexander Noren"
-rd2$Player[rd2$Player=="Matthew Wolff"] <- "Matthew Wolf"
+rd3$player[rd3$player=="Rafa Cabrera Bello"] <- "Rafael Cabrera Bello"
+rd3$player[rd3$player=="Alex Noren"] <- "Alexander Noren"
+rd3$player[rd3$player=="Matthew Wolff"] <- "Matthew Wolf"
 ```
 
 ###Showdown Scoring
@@ -67,7 +67,7 @@ showdown <- plyr_rd_scoring %>%
 ###DK Analysis vs Field Avg
 ```{r}
 showdown %>%
-  left_join(select(rd1, player, Salary)) %>%
+  left_join(select(rd3, player, Salary)) %>%
   filter(Salary %in% c(9100:11000), !is.na(Salary)) %>%
   mutate(plyr_sample = paste0(player, " (", as.character(n), ")", " (", as.character(Salary), ")" )) %>%
   ggplot(aes(x=fct_reorder(plyr_sample, dk_pts_over_avg, fun=mean), y = dk_pts_over_avg)) +
@@ -119,10 +119,6 @@ showdown %>%
 ###Simulations
 ```{r}
 
-showdown %>%
-  filter(n>50) %>%
-  distinct(player) %>%
-  pull(player)
 
 player_sim_data <- showdown %>%
   filter(n>35) %>%
@@ -141,7 +137,7 @@ player_sims <- player_sim_data %>%
          perc_90 = round(quantile(rnorm(n = sims, mean = avg, sd = st_dev), prob= .90), 2)) %>%
   arrange(-perc_75)
 
-rd2_sims <- rd2 %>%
+rd3_sims <- rd3 %>%
   clean_names() %>%
   select(player, salary) %>%
   left_join(select(player_sims, everything()), by="player")
@@ -152,10 +148,10 @@ rd2_sims <- rd2 %>%
 
 ###Analyzing Sims
 ```{r}
-rd2_sims %>%
+rd3_sims %>%
   select(-avg, -st_dev) %>%
-  filter(salary < 7800) %>%
-  arrange(-perc_75) %>%
+  filter(salary %in% c(7000:8100)) %>%
+  arrange(-perc_25) %>%
   head(20)
 
 ```
