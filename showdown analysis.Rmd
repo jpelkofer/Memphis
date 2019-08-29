@@ -127,7 +127,7 @@ player_sim_data <- showdown %>%
   ungroup() %>%
   mutate(sims = 20000)
 
-set.seed(33)
+set.seed(99)
 player_sims <- player_sim_data %>%
   rowwise %>% 
   mutate(rd_avg = round(mean(rnorm(n = sims, mean = avg, sd = st_dev)), 2),
@@ -150,8 +150,8 @@ rd3_sims <- rd3 %>%
 ```{r}
 rd3_sims %>%
   select(-avg, -st_dev) %>%
-  filter(salary %in% c(7000:8100)) %>%
-  arrange(-perc_25) %>%
+  #filter(salary %in% c(7000:7400)) %>%
+  arrange(-rd_avg) %>%
   head(20)
 
 ```
